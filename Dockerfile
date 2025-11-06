@@ -1,27 +1,16 @@
-FROM golang:1.23.1-alpine AS builder
+FROM golang:1.25.1-alpine AS builder
 
-WORKDIR /app
+COPY . /go-tg-bot
+WORKDIR /go-tg-bot
 
-# Установка необходимых зависимостей для сборки
 RUN apk add --no-cache git
 
-# Копирование и загрузка зависимостей
-COPY go.mod go.sum ./
 RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./bin/go-tg-bot-bin cmd/main.go
 
-# Копирование исходного кода
-COPY . .
+FROM alpine:3.20.8
 
-# Сборка приложения
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+WORKDIR /root/
+COPY --from=builder /go-tg-bot/bin/go-tg-bot-bin .
 
-# Финальный этап
-FROM alpine:latest
-
-WORKDIR /app
-
-# Копирование бинарного файла из этапа сборки
-COPY --from=builder /app/main .
-
-# Запуск приложения
-CMD ["./main"] 
+CMD ["./go-tg-bot-bin"]

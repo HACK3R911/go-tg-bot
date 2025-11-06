@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"github.com/HACK3R911/go-tg-bot/internal/config"
+	"github.com/HACK3R911/go-tg-bot/internal/config/env"
 	"log"
 	"sync"
 	"time"
@@ -12,12 +15,14 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-const (
-	channelID          = ""
-	searchQuery        = "змей"
-	TELEGRAM_BOT_TOKEN = ""
-	YOUTUBE_API_KEY    = ""
-)
+//const (
+//	CHANNEL_ID         = ""
+//	SEARCH_QUERY       = "змей"
+//	TELEGRAM_BOT_TOKEN = ""
+//	YOUTUBE_API_KEY    = ""
+//)
+
+var configPath string
 
 type UserLastCommand struct {
 	LastUsage time.Time
@@ -75,18 +80,35 @@ func isUserAuthorized(userID int64) bool {
 	return authorizedUsers[userID]
 }
 
+func init() {
+	flag.StringVar(&configPath, "config-path", ".env", "путь к конфигурационному файлу")
+}
+
 func main() {
-	// Инициализация YouTube API
+	flag.Parse()
 	ctx := context.Background()
-	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(YOUTUBE_API_KEY))
+
+	err := config.Load(configPath)
+	if err != nil {
+		log.Fatalf("Ошибка при загрузке конфигурации: %v", err)
+	}
+
+	apiConfig, err := env.NewAPIConfig()
+	if err != nil {
+		log.Fatalf("Ошибка при создании API конфигурации: %v", err)
+	}
+
+	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(apiConfig.GetYoutubeApiKey()))
 	if err != nil {
 		log.Fatalf("Ошибка при создании YouTube клиента: %v", err)
 	}
 
 	// Инициализация Telegram бота
-	bot, err := tgbotapi.NewBotAPI(TELEGRAM_BOT_TOKEN)
+	bot, err := tgbotapi.NewBotAPI(apiConfig.GetTelegramBotToken())
 	if err != nil {
 		log.Fatalf("Ошибка при создании Telegram бота: %v", err)
+	} else {
+		log.Printf("Авторизация Telegram бота успешно выполнена")
 	}
 
 	// Настройка обновлений
@@ -133,8 +155,8 @@ func main() {
 
 				// Поиск последнего видео со змеем
 				call := youtubeService.Search.List([]string{"id", "snippet"}).
-					ChannelId(channelID).
-					Q(searchQuery).
+					ChannelId(apiConfig.GetChannelId()).
+					Q(apiConfig.GetSearchQuery()).
 					Type("video").
 					MaxResults(1).
 					Order("date") // Сортировка по дате (самое новое первым)
