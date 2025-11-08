@@ -6,7 +6,7 @@ WORKDIR /go-tg-bot
 RUN apk add --no-cache git
 
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./bin/go-tg-bot-bin cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./bin/go-tg-bot-bin cmd/bot/main.go
 
 FROM alpine:3.20.8
 

@@ -14,8 +14,8 @@ func Load(path string) error {
 }
 
 type APIConfig interface {
-	GetChannelId() string
-	GetSearchQuery() string
-	GetTelegramBotToken() string
-	GetYoutubeApiKey() string
+	ChannelId() string
+	SearchQuery() string
+	TelegramBotToken() string
+	YoutubeApiKey() string
 }
