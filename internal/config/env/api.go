@@ -51,18 +51,18 @@ func NewAPIConfig() (*apiConfig, error) {
 	}, nil
 }
 
-func (cfg *apiConfig) GetChannelId() string {
+func (cfg *apiConfig) ChannelId() string {
 	return cfg.channelId
 }
 
-func (cfg *apiConfig) GetSearchQuery() string {
+func (cfg *apiConfig) SearchQuery() string {
 	return cfg.searchQuery
 }
 
-func (cfg *apiConfig) GetTelegramBotToken() string {
+func (cfg *apiConfig) TelegramBotToken() string {
 	return cfg.telegramBotToken
 }
 
-func (cfg *apiConfig) GetYoutubeApiKey() string {
+func (cfg *apiConfig) YoutubeApiKey() string {
 	return cfg.youtubeApiKey
 }
