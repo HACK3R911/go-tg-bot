@@ -2,23 +2,24 @@ package bot
 
 import (
 	"context"
-	"github.com/HACK3R911/go-tg-bot/internal/handlers"
-	"github.com/HACK3R911/go-tg-bot/internal/service"
+	"github.com/HACK3R911/go-tg-bot/internal/handler"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 )
 
+const (
+	startCommand = "start"
+	snakeCommand = "snake"
+)
+
 type Bot struct {
-	api *tgbotapi.BotAPI
-	//authSvc *service.AuthService
-	// limiter  *handlers.RateLimiter
-	//ytSvc       service.YoutubeService
-	service     *service.Service
+	api         *tgbotapi.BotAPI
+	handler     *handler.Handler
 	channelId   string
 	searchQuery string
 }
 
-func NewBot(token string, service *service.Service, channelId, searchQuery string) (*Bot, error) {
+func NewBot(token string, handler *handler.Handler, channelId, searchQuery string) (*Bot, error) {
 	api, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, err
@@ -27,13 +28,13 @@ func NewBot(token string, service *service.Service, channelId, searchQuery strin
 	return &Bot{
 		api: api,
 		// limiter:  limiter,
-		service:     service,
+		handler:     handler,
 		channelId:   channelId,
 		searchQuery: searchQuery,
 	}, nil
 }
 
-func (b *Bot) Run(ctx context.Context) {
+func (b *Bot) Run(ctx context.Context) error {
 	log.Printf("Бот авторизован на аккаунте %s", b.api.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -45,20 +46,25 @@ func (b *Bot) Run(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			log.Println("Shutting down bot...")
-			return
+			return ctx.Err()
 		case update := <-updates:
 			if update.Message == nil {
 				continue
 			}
-			cmd := update.Message.Command()
-			switch cmd {
-			case "start":
-				handlers.HandleStart(&update, b.api, b.service)
-			case "snake":
-				handlers.HandleSnake(&update, b.api /*b.limiter,*/, b.service, b.channelId, b.searchQuery)
-			default:
-				tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная команда")
-			}
+			go func(u tgbotapi.Update) {
+				if u.Message != nil && u.Message.IsCommand() {
+					cmd := u.Message.Command()
+					switch cmd {
+					case startCommand:
+						b.handler.HandleStart(&update, b.api)
+
+					case snakeCommand:
+						b.handler.HandleSnake(&update, b.api, b.channelId, b.searchQuery)
+					default:
+						tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная команда")
+					}
+				}
+			}(update)
 		}
 	}
 }
