@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/HACK3R911/go-tg-bot/internal/handler"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 	"log"
@@ -77,8 +78,9 @@ func main() {
 
 	repo := repository.NewRepository()
 	service := service.NewService(repo, ytClient)
+	handler := handler.NewHandler(service)
 
-	tgBot, err := bot.NewBot(apiConfig.TelegramBotToken(), service, apiConfig.ChannelId(), apiConfig.SearchQuery())
+	tgBot, err := bot.NewBot(apiConfig.TelegramBotToken(), handler, apiConfig.ChannelId(), apiConfig.SearchQuery())
 	if err != nil {
 		log.Fatalf("Ошибка при создании бота: %v", err)
 	}
