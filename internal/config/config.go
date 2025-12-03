@@ -9,6 +9,7 @@ func Load(path string) error {
 	err := godotenv.Load(path)
 	if err != nil {
 		log.Fatal("Ошибка загрузки .env файла")
+		return err
 	}
 	return nil
 }
@@ -18,4 +19,16 @@ type APIConfig interface {
 	SearchQuery() string
 	TelegramBotToken() string
 	YoutubeApiKey() string
+	DSN() string
+}
+
+type PGConfig interface {
+	Host() string
+	Port() string
+	User() string
+	Password() string
+	Name() string
+	SSLMode() string
+	MaxConns() string
+	Timeout() string
 }

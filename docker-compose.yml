@@ -1,13 +1,29 @@
 services:
-#  Для каждого пользователя сколько раз использовал команду
+# TODO  Для каждого пользователя сколько раз использовал команду
 
   bot:
     build: .
     container_name: go-tg-bot
-    restart: always
+    restart: on-failure
+    env_file: .env
+    depends_on:
+      - postgres
     environment:
-#      - "CHANNEL_ID=${CHANNEL_ID}"
-#      - "SEARCH_QUERY=${SEARCH_QUERY}"
-#      - "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
-#      - "YOUTUBE_API_KEY=${YOUTUBE_API_KEY}"
       - TZ=Europe/Moscow
+
+  postgres:
+    image: postgres:17.4-alpine
+    container_name: postgres
+    restart: on-failure
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+
+

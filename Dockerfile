@@ -13,4 +13,7 @@ FROM alpine:3.20.8
 WORKDIR /root/
 COPY --from=builder /go-tg-bot/bin/go-tg-bot-bin .
 
+#мое невезучее место
+COPY .env .
+
 CMD ["./go-tg-bot-bin"]
