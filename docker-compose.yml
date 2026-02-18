@@ -1,15 +1,16 @@
 services:
-# TODO  Для каждого пользователя сколько раз использовал команду
-
   bot:
     build: .
     container_name: go-tg-bot
     restart: on-failure
     env_file: .env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - TZ=Europe/Moscow
+    networks:
+      - bot-network
 
   postgres:
     image: postgres:17.4-alpine
@@ -22,8 +23,20 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - pg_data:/var/lib/postgresql/data
+    networks:
+      - bot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "5432:5432"
 
 volumes:
   pg_data:
 
-
+networks:
+  bot-network:
+    driver: bridge
