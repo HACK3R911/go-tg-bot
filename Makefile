@@ -1,5 +1,5 @@
 db-test:
-	docker run --name=db-test -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:17.4-alpine -rm
+	sudo docker run --rm --name=db-test -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:17.4-alpine
 
 db-it:
 	docker exec -it db-test /bin/bash

@@ -1,4 +1,6 @@
+.gitignore
 .idea
+.opencode
 
 go.mod
 go.sum
