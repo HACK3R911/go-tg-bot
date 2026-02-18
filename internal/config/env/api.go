@@ -2,8 +2,9 @@ package env
 
 import (
 	"errors"
-	"github.com/HACK3R911/go-tg-bot/internal/config"
 	"os"
+
+	"github.com/HACK3R911/go-tg-bot/internal/config"
 )
 
 const (
@@ -20,7 +21,6 @@ type apiConfig struct {
 	searchQuery      string
 	telegramBotToken string
 	youtubeApiKey    string
-	dsn              string
 }
 
 func NewAPIConfig() (*apiConfig, error) {
@@ -44,17 +44,11 @@ func NewAPIConfig() (*apiConfig, error) {
 		return nil, errors.New("YOUTUBE_API_KEY не найден")
 	}
 
-	dsn := os.Getenv("DSN_TEST")
-	if len(dsn) == 0 {
-		return nil, errors.New("DSN_TEST не найден")
-	}
-
 	return &apiConfig{
 		ytChannelId:      ytChannelId,
 		searchQuery:      searchQuery,
 		telegramBotToken: telegramBotToken,
 		youtubeApiKey:    youtubeApiKey,
-		dsn:              dsn,
 	}, nil
 }
 
@@ -72,8 +66,4 @@ func (cfg *apiConfig) TelegramBotToken() string {
 
 func (cfg *apiConfig) YoutubeApiKey() string {
 	return cfg.youtubeApiKey
-}
-
-func (cfg *apiConfig) DSN() string {
-	return cfg.dsn
 }

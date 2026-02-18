@@ -19,7 +19,6 @@ type APIConfig interface {
 	SearchQuery() string
 	TelegramBotToken() string
 	YoutubeApiKey() string
-	DSN() string
 }
 
 type PGConfig interface {
@@ -31,4 +30,5 @@ type PGConfig interface {
 	SSLMode() string
 	MaxConns() string
 	Timeout() string
+	DSN() string
 }
