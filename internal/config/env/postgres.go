@@ -2,8 +2,10 @@ package env
 
 import (
 	"errors"
-	"github.com/HACK3R911/go-tg-bot/internal/config"
+	"fmt"
 	"os"
+
+	"github.com/HACK3R911/go-tg-bot/internal/config"
 )
 
 const (
@@ -113,4 +115,15 @@ func (cfg *pgConfig) MaxConns() string {
 
 func (cfg *pgConfig) Timeout() string {
 	return cfg.timeout
+}
+
+func (cfg *pgConfig) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.user,
+		cfg.password,
+		cfg.host,
+		cfg.port,
+		cfg.name,
+		cfg.sslMode,
+	)
 }
