@@ -38,16 +38,21 @@ func (b *Bot) Run(ctx context.Context) error {
 	log.Printf("Бот авторизован на аккаунте %s", b.api.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 180
+	u.Timeout = 60
 
 	updates := b.api.GetUpdatesChan(u)
+	defer b.api.StopReceivingUpdates()
 
 	for {
 		select {
 		case <-ctx.Done():
 			log.Println("Shutting down bot...")
 			return ctx.Err()
-		case update := <-updates:
+		case update, ok := <-updates:
+			if !ok {
+				log.Println("Updates channel closed")
+				return nil
+			}
 			if update.Message == nil {
 				continue
 			}
