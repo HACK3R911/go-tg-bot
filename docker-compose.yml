@@ -9,6 +9,7 @@ services:
         condition: service_healthy
     environment:
       - TZ=Europe/Moscow
+      - PG_HOST=postgres
     networks:
       - bot-network
 

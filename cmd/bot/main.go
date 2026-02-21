@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"log"
 	"os"
@@ -17,14 +18,18 @@ import (
 	"github.com/HACK3R911/go-tg-bot/internal/repository"
 	"github.com/HACK3R911/go-tg-bot/internal/service"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
 
 var configPath string
+var migrationsPath string
 
 func init() {
 	flag.StringVar(&configPath, "config-path", ".env", "путь к конфигурационному файлу")
+	flag.StringVar(&migrationsPath, "migrations-path", "./migrations", "путь к файлу миграций")
 }
 
 func main() {
@@ -44,6 +49,17 @@ func main() {
 	pgConfig, err := env.NewPGConfig()
 	if err != nil {
 		log.Fatalf("Error creating PostgreSQL configuration: %v", err)
+	}
+
+	// Migration up
+	db, err := sql.Open("pgx", pgConfig.DSN())
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+	defer db.Close()
+
+	if err := goose.Up(db, migrationsPath); err != nil {
+		log.Fatalf("Error migration: %v", err)
 	}
 
 	// Initialize PostgreSQL connection pool
@@ -87,7 +103,7 @@ func main() {
 	log.Println("Received shutdown signal, initiating graceful shutdown...")
 
 	// Create shutdown context with timeout
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdownCancel()
 
 	// Cancel main context to stop bot
