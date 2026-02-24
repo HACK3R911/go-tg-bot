@@ -2,9 +2,10 @@ package bot
 
 import (
 	"context"
+	"log"
+
 	"github.com/HACK3R911/go-tg-bot/internal/handler"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
 )
 
 const (
@@ -62,11 +63,10 @@ func (b *Bot) Run(ctx context.Context) error {
 					switch cmd {
 					case startCommand:
 						b.handler.HandleStart(&update, b.api)
-
 					case snakeCommand:
 						b.handler.HandleSnake(&update, b.api, b.channelId, b.searchQuery)
 					default:
-						tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная команда")
+						b.handler.HandleDefault(&update, b.api)
 					}
 				}
 			}(update)
