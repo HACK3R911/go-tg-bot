@@ -44,7 +44,9 @@ func (h *Handler) HandleSnake(update *tgbotapi.Update, bot *tgbotapi.BotAPI, cha
 	if err != nil {
 		log.Printf("Ошибка поиска видео: %v", err)
 		msg := tgbotapi.NewMessage(chatID, "Ошибка при поиске видео.")
-		bot.Send(msg)
+		if _, err := bot.Send(msg); err != nil {
+			log.Printf("Ошибка отправки: %v", err)
+		}
 		return
 	}
 	counter[userID]++
