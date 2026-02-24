@@ -28,8 +28,6 @@ func (h *Handler) HandleSnake(update *tgbotapi.Update, bot *tgbotapi.BotAPI, cha
 	userID := update.Message.From.ID
 	chatID := update.Message.Chat.ID
 
-	counter := make(map[int64]int)
-
 	if !h.service.IsAuthorized(userID) {
 		privateMsg := tgbotapi.NewMessage(userID, "Вы не авторизованы. Пожалуйста, используйте /start в личном чате с ботом.")
 		if _, err := bot.Send(privateMsg); err != nil {
@@ -49,8 +47,11 @@ func (h *Handler) HandleSnake(update *tgbotapi.Update, bot *tgbotapi.BotAPI, cha
 		}
 		return
 	}
-	counter[userID]++
-	message := fmt.Sprintf("Последнее видео со змеем:\n%s\nНазвание: %s", video.URL, video.Title)
+
+	h.service.IncrementSnakeCounter(userID)
+	count := h.service.GetSnakeCounter(userID)
+
+	message := fmt.Sprintf("Последнее видео со змеем:\n%s\nНазвание: %s\n\nИспользовано раз: %d", video.URL, video.Title, count)
 
 	msg := tgbotapi.NewMessage(chatID, message)
 	if _, err := bot.Send(msg); err != nil {
