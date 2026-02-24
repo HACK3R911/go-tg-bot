@@ -3,8 +3,9 @@ package handler
 import (
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 const chatType = "private"
@@ -50,6 +51,13 @@ func (h *Handler) HandleSnake(update *tgbotapi.Update, bot *tgbotapi.BotAPI, cha
 	message := fmt.Sprintf("Последнее видео со змеем:\n%s\nНазвание: %s", video.URL, video.Title)
 
 	msg := tgbotapi.NewMessage(chatID, message)
+	if _, err := bot.Send(msg); err != nil {
+		log.Printf("Ошибка отправки: %v", err)
+	}
+}
+
+func (h *Handler) HandleDefault(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная команда")
 	if _, err := bot.Send(msg); err != nil {
 		log.Printf("Ошибка отправки: %v", err)
 	}
