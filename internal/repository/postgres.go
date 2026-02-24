@@ -87,3 +87,44 @@ func (r *PostgresAuthRepo) GetUserStats(userID int64) (map[string]interface{}, e
 		"updated_at":    updatedAt,
 	}, nil
 }
+
+type PostgresSnakeUsageRepo struct {
+	pool *pgxpool.Pool
+}
+
+func NewPostgresSnakeUsageRepo(pool *pgxpool.Pool) *PostgresSnakeUsageRepo {
+	return &PostgresSnakeUsageRepo{pool: pool}
+}
+
+func (r *PostgresSnakeUsageRepo) IncrementSnakeCounter(userID int64) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO snake_usage (user_id, counter, created_at, updated_at)
+		VALUES ($1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		ON CONFLICT (user_id) DO UPDATE SET
+			counter = snake_usage.counter + 1,
+			updated_at = CURRENT_TIMESTAMP
+	`
+
+	_, err := r.pool.Exec(ctx, query, userID)
+	if err != nil {
+		fmt.Printf("Error incrementing snake counter for user %d: %v\n", userID, err)
+	}
+}
+
+func (r *PostgresSnakeUsageRepo) GetSnakeCounter(userID int64) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `SELECT counter FROM snake_usage WHERE user_id = $1`
+
+	var counter int
+	err := r.pool.QueryRow(ctx, query, userID).Scan(&counter)
+	if err != nil {
+		return 0
+	}
+
+	return counter
+}

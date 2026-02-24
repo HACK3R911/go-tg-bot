@@ -10,21 +10,30 @@ type AuthRepo interface {
 	IsAuthorizedRepo(userID int64) bool
 }
 
+// SnakeUsageRepo defines the interface for snake command usage tracking
+type SnakeUsageRepo interface {
+	IncrementSnakeCounter(userID int64)
+	GetSnakeCounter(userID int64) int
+}
+
 // Repository aggregates all repository interfaces
 type Repository struct {
 	AuthRepo
+	SnakeUsageRepo
 }
 
 // NewRepository creates a new repository with in-memory storage (for testing)
 func NewRepository() *Repository {
 	return &Repository{
-		AuthRepo: NewAuthDB(),
+		AuthRepo:       NewAuthDB(),
+		SnakeUsageRepo: NewSnakeUsageDB(),
 	}
 }
 
 // NewPostgresRepository creates a new repository with PostgreSQL storage
 func NewPostgresRepository(pool *pgxpool.Pool) *Repository {
 	return &Repository{
-		AuthRepo: NewPostgresAuthRepo(pool),
+		AuthRepo:       NewPostgresAuthRepo(pool),
+		SnakeUsageRepo: NewPostgresSnakeUsageRepo(pool),
 	}
 }

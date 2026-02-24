@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	youtubeclient "github.com/HACK3R911/go-tg-bot/internal/adapter/youtube"
 	"github.com/HACK3R911/go-tg-bot/internal/repository"
 )
@@ -15,14 +16,21 @@ type Youtube interface {
 	SearchLatestVideo(ctx context.Context, channelID, query string) (*youtubeclient.Video, error)
 }
 
+type SnakeUsage interface {
+	IncrementSnakeCounter(userID int64)
+	GetSnakeCounter(userID int64) int
+}
+
 type Service struct {
 	Auth
 	Youtube
+	SnakeUsage
 }
 
 func NewService(repos *repository.Repository, ytClient youtubeclient.YoutubeClient) *Service {
 	return &Service{
-		Auth:    NewAuthService(repos.AuthRepo),
-		Youtube: NewYoutubeService(ytClient),
+		Auth:       NewAuthService(repos.AuthRepo),
+		Youtube:    NewYoutubeService(ytClient),
+		SnakeUsage: NewSnakeUsageService(repos.SnakeUsageRepo),
 	}
 }
