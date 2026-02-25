@@ -7,3 +7,4 @@ go.sum
 /bin
 
 .env
+.env.local

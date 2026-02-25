@@ -45,7 +45,7 @@ type PGConfig interface {
 	Port() string
 	User() string
 	Password() string
-	Name() string
+	DB() string
 	SSLMode() string
 	MaxConns() string
 	Timeout() string

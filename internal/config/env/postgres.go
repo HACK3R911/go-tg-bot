@@ -9,14 +9,14 @@ import (
 )
 
 const (
-	pgHostEnvName     = "PG_HOST"
-	pgPortEnvName     = "PG_PORT"
-	pgUserEnvName     = "PG_USER"
-	pgPasswordEnvName = "PG_PASSWORD"
-	pgNameEnvName     = "PG_NAME"
-	pgSslModeEnvName  = "PG_SSLMODE"
-	pgMaxConnsEnvName = "PG_MAX_CONNS"
-	pgTimeoutEnvName  = "PG_TIMEOUT"
+	pgHostEnvName     = "POSTGRES_HOST"
+	pgPortEnvName     = "POSTGRES_PORT"
+	pgUserEnvName     = "POSTGRES_USER"
+	pgPasswordEnvName = "POSTGRES_PASSWORD"
+	pgDbEnvName       = "POSTGRES_DB"
+	pgSslModeEnvName  = "POSTGRES_SSLMODE"
+	pgMaxConnsEnvName = "POSTGRES_MAX_CONNS"
+	pgTimeoutEnvName  = "POSTGRES_TIMEOUT"
 )
 
 var _ config.PGConfig = (*pgConfig)(nil)
@@ -26,7 +26,7 @@ type pgConfig struct {
 	port     string
 	user     string
 	password string
-	name     string
+	db       string
 	sslMode  string
 	maxConns string
 	timeout  string
@@ -35,42 +35,42 @@ type pgConfig struct {
 func NewPGConfig() (*pgConfig, error) {
 	host := os.Getenv(pgHostEnvName)
 	if len(host) == 0 {
-		return nil, errors.New("PG_HOST не найден")
+		return nil, errors.New("POSTGRES_HOST не найден")
 	}
 
 	port := os.Getenv(pgPortEnvName)
 	if len(port) == 0 {
-		return nil, errors.New("PG_PORT не найден")
+		return nil, errors.New("POSTGRES_PORT не найден")
 	}
 
 	user := os.Getenv(pgUserEnvName)
 	if len(user) == 0 {
-		return nil, errors.New("PG_USER не найден")
+		return nil, errors.New("POSTGRES_USER не найден")
 	}
 
 	password := os.Getenv(pgPasswordEnvName)
 	if len(password) == 0 {
-		return nil, errors.New("PG_PASSWORD не найден")
+		return nil, errors.New("POSTGRES_PASSWORD не найден")
 	}
 
-	name := os.Getenv(pgNameEnvName)
-	if len(name) == 0 {
-		return nil, errors.New("PG_NAME не найден")
+	db := os.Getenv(pgDbEnvName)
+	if len(db) == 0 {
+		return nil, errors.New("POSTGRES_DB не найден")
 	}
 
 	sslMode := os.Getenv(pgSslModeEnvName)
 	if len(sslMode) == 0 {
-		return nil, errors.New("PG_SSLMODE не найден")
+		return nil, errors.New("POSTGRES_SSLMODE не найден")
 	}
 
 	maxConns := os.Getenv(pgMaxConnsEnvName)
 	if len(maxConns) == 0 {
-		return nil, errors.New("PG_MAX_CONNS не найден")
+		return nil, errors.New("POSTGRES_MAX_CONNS не найден")
 	}
 
 	timeout := os.Getenv(pgTimeoutEnvName)
 	if len(timeout) == 0 {
-		return nil, errors.New("PG_TIMEOUT не найден")
+		return nil, errors.New("POSTGRES_TIMEOUT не найден")
 	}
 
 	return &pgConfig{
@@ -78,7 +78,7 @@ func NewPGConfig() (*pgConfig, error) {
 		port:     port,
 		user:     user,
 		password: password,
-		name:     name,
+		db:       db,
 		sslMode:  sslMode,
 		maxConns: maxConns,
 		timeout:  timeout,
@@ -101,8 +101,8 @@ func (cfg *pgConfig) Password() string {
 	return cfg.password
 }
 
-func (cfg *pgConfig) Name() string {
-	return cfg.name
+func (cfg *pgConfig) DB() string {
+	return cfg.db
 }
 
 func (cfg *pgConfig) SSLMode() string {
@@ -123,7 +123,7 @@ func (cfg *pgConfig) DSN() string {
 		cfg.password,
 		cfg.host,
 		cfg.port,
-		cfg.name,
+		cfg.db,
 		cfg.sslMode,
 	)
 }
