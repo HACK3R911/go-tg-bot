@@ -2,8 +2,7 @@
 .idea
 .opencode
 
-go.mod
-go.sum
+
 /bin
 # Build artifacts
 build/
