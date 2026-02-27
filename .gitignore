@@ -2,7 +2,6 @@
 .idea
 .opencode
 
-
 /bin
 # Build artifacts
 build/
