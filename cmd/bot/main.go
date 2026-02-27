@@ -56,7 +56,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatalf("Error closing db connection on migrate: %v", err)
+		}
+	}(db)
 
 	if err := goose.Up(db, migrationsPath); err != nil {
 		log.Fatalf("Error migration: %v", err)
@@ -93,7 +98,11 @@ func main() {
 		log.Fatalf("Error creating bot: %v", err)
 	}
 
-	go tgBot.Run(ctx)
+	go func() {
+		if err := tgBot.Run(ctx); err != nil {
+			log.Printf("Bot error: %v", err)
+		}
+	}()
 
 	// Graceful shutdown
 	signalChan := make(chan os.Signal, 1)
