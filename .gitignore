@@ -5,6 +5,15 @@
 go.mod
 go.sum
 /bin
+# Build artifacts
+build/
+dist/
+coverage.out
+coverage.html
+*.exe
+*.dll
+*.so
+*.dylib
 
 .env
 .env.local
