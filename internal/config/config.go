@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 )
 
 func Load(path string) error {
@@ -50,4 +51,13 @@ type PGConfig interface {
 	MaxConns() string
 	Timeout() string
 	DSN() string
+}
+
+type RLConfig interface {
+	MaxConcurrent() int
+	GlobalRPS() rate.Limit
+	GlobalBurst() int
+	PerUserRPS() rate.Limit
+	PerUserBurst() int
+	MaxUsers() int
 }
